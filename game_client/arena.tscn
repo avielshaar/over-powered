@@ -1,0 +1,38 @@
+[gd_scene load_steps=6 format=3 uid="uid://c2a1b3c4d5e6f"]
+
+[ext_resource type="PackedScene" uid="uid://b1xf4u6m5y2j1" path="res://player.tscn" id="1_player"]
+[ext_resource type="PackedScene" uid="uid://d1a2b3c4d5e6f" path="res://dummy.tscn" id="2_dummy"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
+size = Vector2(1152, 60)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall"]
+size = Vector2(40, 648)
+
+[node name="Arena" type="Node2D"]
+
+[node name="Boundaries" type="StaticBody2D" parent="."]
+
+[node name="FloorCollision" type="CollisionShape2D" parent="Boundaries"]
+position = Vector2(576, 618)
+shape = SubResource("RectangleShape2D_floor")
+
+[node name="LeftWall" type="CollisionShape2D" parent="Boundaries"]
+position = Vector2(-20, 324)
+shape = SubResource("RectangleShape2D_wall")
+
+[node name="RightWall" type="CollisionShape2D" parent="Boundaries"]
+position = Vector2(1172, 324)
+shape = SubResource("RectangleShape2D_wall")
+
+[node name="ColorRect" type="ColorRect" parent="Boundaries"]
+offset_top = 588.0
+offset_right = 1152.0
+offset_bottom = 648.0
+color = Color(0.2, 0.2, 0.2, 1)
+
+[node name="Player" parent="." instance=ExtResource("1_player")]
+position = Vector2(400, 100)
+
+[node name="Dummy" parent="." instance=ExtResource("2_dummy")]
+position = Vector2(750, 100)

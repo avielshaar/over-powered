@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://d1a2b3c4d5e6f"]
+
+[ext_resource type="Script" uid="uid://6whvsnovej1e" path="res://dummy.gd" id="1_script"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_dummy"]
+radius = 20.0
+height = 80.0
+
+[node name="Dummy" type="CharacterBody2D" unique_id=1430723619 groups=["enemies"]]
+script = ExtResource("1_script")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1537163683]
+shape = SubResource("CapsuleShape2D_dummy")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=45164375]
+offset_left = -20.0
+offset_top = -40.0
+offset_right = 20.0
+offset_bottom = 40.0
+color = Color(0, 0, 1, 1)
