@@ -10,11 +10,15 @@ var gravity = ProjectSettings.get_setting("physics/2d/default_gravity") * 2.0
 enum State { IDLE, RUN, JUMP, ATTACK }
 var current_state = State.IDLE
 var is_attacking = false
+var facing_right = true 
 
 @onready var hitbox = $Hitbox
+@onready var color_rect = $ColorRect
+@onready var health_bar = $HealthBar
 
 func _ready():
 	hitbox.hide()
+	hitbox.position.x = 40 
 
 func _physics_process(delta):
 	if not is_on_floor():
@@ -28,8 +32,6 @@ func _physics_process(delta):
 
 	move_and_slide()
 	update_state()
-	
-	# משדר את הנתונים לשרת בכל פריים
 	broadcast_data()
 
 func handle_movement(delta):
@@ -42,11 +44,12 @@ func handle_movement(delta):
 	if direction != 0:
 		velocity.x = move_toward(velocity.x, direction * MAX_SPEED, ACCELERATION * delta)
 		
-		# כיוון ה-Hitbox
 		if direction > 0:
-			hitbox.position.x = 40 
+			facing_right = true
+			hitbox.position.x = 40
 		elif direction < 0:
-			hitbox.position.x = -40 
+			facing_right = false
+			hitbox.position.x = -40
 	else:
 		velocity.x = move_toward(velocity.x, 0, FRICTION * delta)
 
@@ -63,7 +66,6 @@ func handle_attack(_delta):
 	hitbox.show()
 	hitbox.monitoring = true
 	
-	# משדר לשרת שהשחקן התחיל תקיפה
 	Network.send_data("player_attack", {})
 	
 	await get_tree().physics_frame
@@ -90,9 +92,8 @@ func update_state():
 	else:
 		current_state = State.IDLE
 
-# הפונקציה החדשה שאוספת את הנתונים ושולחת אותם
 func broadcast_data():
-	var facing = "right" if hitbox.position.x > 0 else "left"
+	var facing = "right" if facing_right else "left"
 	var state_name = State.keys()[current_state]
 	
 	Network.send_data("player_movement", {
@@ -101,3 +102,18 @@ func broadcast_data():
 		"state": state_name,
 		"facing": facing
 	})
+
+# --- UI & Network Feedback ---
+
+func update_health(new_health):
+	health_bar.value = new_health
+
+func play_damage_effect():
+	color_rect.color = Color(1, 1, 1, 1)
+	await get_tree().create_timer(0.1).timeout
+	color_rect.color = Color(1, 0, 0, 1)
+
+func respawn():
+	position = Vector2(576, 100)
+	velocity = Vector2.ZERO
+	health_bar.value = 100
