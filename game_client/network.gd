@@ -58,7 +58,6 @@ func handle_server_message(message: Dictionary):
 			local_player_id = data.id
 			var current_players = data.players
 			for p_id in current_players:
-				# Spawn everyone EXCEPT the local player
 				if p_id != local_player_id:
 					spawn_network_player(p_id, current_players[p_id])
 		"player_connected":
@@ -70,6 +69,20 @@ func handle_server_message(message: Dictionary):
 		"player_attacked":
 			if network_players.has(data):
 				network_players[data].play_attack()
+		"player_took_damage":
+			if data.id == local_player_id:
+				var p = arena_node.get_node("Player")
+				p.play_damage_effect()
+				p.update_health(data.health)
+			elif network_players.has(data.id):
+				var np = network_players[data.id]
+				np.play_damage_effect()
+				np.update_health(data.health)
+		"player_died":
+			if data == local_player_id:
+				arena_node.get_node("Player").respawn()
+			elif network_players.has(data):
+				network_players[data].respawn()
 		"player_disconnected":
 			if network_players.has(data):
 				network_players[data].queue_free()
@@ -80,6 +93,7 @@ func spawn_network_player(p_id: String, data: Dictionary):
 		return
 		
 	var new_player = network_player_scene.instantiate()
+	new_player.network_id = p_id
 	arena_node.add_child(new_player)
 	new_player.update_data(data)
 	network_players[p_id] = new_player
